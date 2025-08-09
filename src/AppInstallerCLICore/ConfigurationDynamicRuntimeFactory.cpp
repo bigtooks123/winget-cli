@@ -130,10 +130,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 return m_processorEngine;
             }
 
-            winrt::hstring GetFactoryMapValue(winrt::hstring key)
+            std::optional<winrt::hstring> GetFactoryMapValue(winrt::hstring key)
             {
                 auto itr = m_factoryMapValues.find(key);
-                return itr != m_factoryMapValues.end() ? itr->second : winrt::hstring{};
+                return itr != m_factoryMapValues.end() ? std::make_optional(itr->second) : std::nullopt;
             }
 
         private:
@@ -155,7 +155,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             IConfigurationSetProcessorFactory::Diagnostics_revoker DiagnosticsEventRevoker;
         };
 
-        struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor>
+        struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor, IFindUnitProcessorsSetProcessor>
         {
             using ProcessorMap = std::map<Security::IntegrityLevel, DynamicProcessorInfo>;
 
@@ -257,6 +257,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 return itr->second.Processor.CreateUnitProcessor(unit);
             }
 
+            Collections::IVector<IConfigurationUnitProcessorDetails> FindUnitProcessors(const FindUnitProcessorsOptions& findOptions)
+            {
+                IFindUnitProcessorsSetProcessor findUnitProcessorsSetProcessor;
+
+                if (m_setProcessors[m_currentIntegrityLevel].Processor.try_as<IFindUnitProcessorsSetProcessor>(findUnitProcessorsSetProcessor))
+                {
+                    return findUnitProcessorsSetProcessor.FindUnitProcessors(findOptions);
+                }
+                else
+                {
+                    AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
+                    THROW_HR(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR);
+                }
+            }
+
         private:
             // Converts the string representation of SecurityContext to the target integrity level for this instance
             Security::IntegrityLevel SecurityContextToIntegrityLevel(SecurityContext securityContext)
@@ -325,21 +340,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 if (m_dynamicFactory->Engine() == ProcessorEngine::DSCv3)
                 {
                     winrt::hstring dscExecutablePathPropertyName = ToHString(PropertyName::DscExecutablePath);
-                    winrt::hstring dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
+                    std::optional<winrt::hstring> dscExecutablePath = m_dynamicFactory->GetFactoryMapValue(dscExecutablePathPropertyName);
 
-                    if (dscExecutablePath.empty())
+                    if (!dscExecutablePath)
                     {
                         dscExecutablePath = m_dynamicFactory->Lookup(ToHString(PropertyName::FoundDscExecutablePath));
                     }
 
-                    if (dscExecutablePath.empty())
+                    if (dscExecutablePath->empty())
                     {
                         // This is backstop to prevent a case where dsc.exe not found.
                         AICLI_LOG(Config, Error, << "Could not find dsc.exe, it must be provided by the user.");
                         THROW_WIN32(ERROR_FILE_NOT_FOUND);
                     }
 
-                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath);
+                    json["processorPath"] = Utility::ConvertToUTF8(dscExecutablePath.value());
                 }
 
                 Json::StreamWriterBuilder writerBuilder;
@@ -420,6 +435,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                                 strong_this->m_dynamicFactory->SendDiagnostics(information);
                             }
                         });
+
+                    winrt::hstring propertyName = ConfigurationRemoting::ToHString(ConfigurationRemoting::PropertyName::DiagnosticTraceEnabled);
+                    if (auto propertyValue = m_dynamicFactory->GetFactoryMapValue(propertyName))
+                    {
+                        factory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(propertyName, propertyValue.value());
+                    }
                 }
 
                 return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet), std::move(factoryDiagnosticsEventRevoker) }).first;

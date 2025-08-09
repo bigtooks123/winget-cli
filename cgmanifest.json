@@ -5,44 +5,8 @@
       "component": {
         "type": "git",
         "git": {
-          "repositoryUrl": "https://github.com/catchorg/Catch2.git",
-          "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
-        }
-      }
-    },
-    {
-      "component": {
-        "type": "git",
-        "git": {
-          "repositoryUrl": "https://github.com/yaml/libyaml.git",
-          "commitHash": "840b65c40675e2d06bf40405ad3f12dec7f35923"
-        }
-      }
-    },
-    {
-      "component": {
-        "type": "git",
-        "git": {
-          "repositoryUrl": "https://github.com/open-source-parsers/jsoncpp.git",
-          "commitHash": "9be589598595963f94ba264d7b416d0533421106"
-        }
-      }
-    },
-    {
-      "component": {
-        "type": "git",
-        "git": {
-          "repositoryUrl": "https://github.com/tristanpenman/valijson.git",
-          "commitHash": "0b4771e273a065d437814baf426bcfcafec0f434"
-        }
-      }
-    },
-    {
-      "component": {
-        "type": "git",
-        "git": {
           "repositoryUrl": "https://github.com/microsoft/cpprestsdk.git",
-          "commitHash": "122d09549201da5383321d870bed45ecb9e168c5"
+          "commitHash": "411a109150b270f23c8c97fa4ec9a0a4a98cdecf"
         }
       }
     },
@@ -59,8 +23,8 @@
       "component": {
         "type": "git",
         "git": {
-          "repositoryUrl": "https://github.com/madler/zlib.git",
-          "commitHash": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf"
+          "repositoryUrl": "https://github.com/microsoft/xlang",
+          "commitHash": "cfe510d0d2b07484fea2c6d77163de017738c100"
         }
       }
     },
@@ -70,6 +34,15 @@
         "git": {
           "repositoryUrl": "https://github.com/microsoft/sfs-client.git",
           "commitHash": "ff315ecfa2ef2953d8a808e51e8a61a4e0759180"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/yaml/libyaml.git",
+          "commitHash": "840b65c40675e2d06bf40405ad3f12dec7f35923"
         }
       }
     }

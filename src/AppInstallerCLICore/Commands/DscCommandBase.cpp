@@ -4,6 +4,7 @@
 #include "DscCommandBase.h"
 #include "DscCommand.h"
 #include <winget/Runtime.h>
+#include <winget/StdErrLogger.h>
 
 #define WINGET_DSC_FUNCTION_FOREACH(_macro_) \
     _macro_(Get); \
@@ -21,8 +22,6 @@ namespace AppInstaller::CLI
 {
     namespace
     {
-        constexpr std::string_view s_WingetModuleName = "Microsoft.WinGet"sv;
-
         std::string GetFunctionManifestString(DscFunctions function)
         {
             THROW_HR_IF(E_INVALIDARG, !WI_IsSingleFlagSet(function));
@@ -114,7 +113,7 @@ namespace AppInstaller::CLI
 
             Json::Value result{ Json::ValueType::objectValue };
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
+#ifndef USE_PROD_CLSIDS
             result["executable"] = "wingetdev";
 #else
             result["executable"] = "winget";
@@ -201,8 +200,7 @@ namespace AppInstaller::CLI
     void DscCommandBase::ExecuteInternal(Execution::Context& context) const
     {
         context.Reporter.SetChannel(Execution::Reporter::Channel::Json);
-
-        // TODO: Consider adding a stderr logger
+        Logging::StdErrLogger::Add();
 
 #define WINGET_DSC_FUNCTION_ARGUMENT(_function_) \
         if (context.Args.Contains(Execution::Args::Type::DscResourceFunction ## _function_)) \
@@ -224,14 +222,14 @@ namespace AppInstaller::CLI
 
     WINGET_DSC_FUNCTION_FOREACH(WINGET_DSC_FUNCTION_METHOD);
 
-    void DscCommandBase::ResourceFunctionManifest(Execution::Context& context) const
+    void DscCommandBase::WriteManifest(Execution::Context& context, const std::filesystem::path& filePath) const
     {
         Json::Value json{ Json::ValueType::objectValue };
 
         // TODO: Move to release schema when released (there should be an aka.ms link as well, but it wasn't active yet)
         //json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/v3/bundled/resource/manifest.json";
         json["$schema"] = "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/bundled/resource/manifest.json";
-        json["type"] = std::string{ s_WingetModuleName } + '/' + ResourceType();
+        json["type"] = std::string{ ModuleName() } + '/' + ResourceType();
         json["description"] = LongDescription().get();
         json["version"] = Runtime::GetClientVersion().get();
 
@@ -253,9 +251,9 @@ namespace AppInstaller::CLI
         writerBuilder.settings_["indentation"] = "  ";
         std::string jsonString = Json::writeString(writerBuilder, json);
 
-        if (context.Args.Contains(Execution::Args::Type::OutputFile))
+        if (!filePath.empty())
         {
-            std::ofstream stream{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)), std::ios::binary };
+            std::ofstream stream{ filePath, std::ios::binary };
             stream.write(jsonString.c_str(), jsonString.length());
         }
         else
@@ -264,26 +262,53 @@ namespace AppInstaller::CLI
         }
     }
 
+    void DscCommandBase::ResourceFunctionManifest(Execution::Context& context) const
+    {
+        std::filesystem::path path;
+        if (context.Args.Contains(Execution::Args::Type::OutputFile))
+        {
+            path = std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)) };
+        }
+        WriteManifest(context, path);
+    }
+
 #undef WINGET_DSC_FUNCTION_METHOD
 
-    std::optional<Json::Value> DscCommandBase::GetJsonFromInput(Execution::Context& context) const
+    std::optional<Json::Value> DscCommandBase::GetJsonFromInput(Execution::Context& context, bool terminateContextOnError) const
     {
-        Json::Value result;
-        Json::CharReaderBuilder builder;
-        Json::String errors;
-        if (!Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
+        // Don't attempt to read from an interactive stream as this will just block
+        if (!context.Reporter.InputStreamIsInteractive())
         {
+            AICLI_LOG(CLI, Verbose, << "Reading Json from input stream...");
+
+            Json::Value result;
+            Json::CharReaderBuilder builder;
+            Json::String errors;
+            if (Json::parseFromStream(builder, context.Reporter.RawInputStream(), &result, &errors))
+            {
+                AICLI_LOG(CLI, Info, << "Json from input stream:\n" << Json::writeString(Json::StreamWriterBuilder{}, result));
+                return result;
+            }
+
             AICLI_LOG(CLI, Error, << "Failed to read input JSON: " << errors);
-            AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, std::nullopt);
         }
 
-        return result;
+        if (terminateContextOnError)
+        {
+            AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, std::nullopt);
+        }
+        else
+        {
+            return std::nullopt;
+        }
     }
 
     void DscCommandBase::WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const
     {
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";
+        writerBuilder.settings_["commentStyle"] = "None";
+        writerBuilder.settings_["emitUTF8"] = true;
         context.Reporter.Json() << Json::writeString(writerBuilder, value) << std::endl;
     }
 }

@@ -20,26 +20,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     namespace
     {
         // The executable file name for the remote server process.
-        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe"sv;
+        constexpr std::wstring_view s_RemoteServerFileName = L"DotNet\\ConfigurationRemotingServer.exe"sv;
 
         constexpr std::wstring_view s_ProcessorEngine_PowerShell = L"pwsh"sv;
         constexpr std::wstring_view s_ProcessorEngine_DSCv3 = L"dscv3"sv;
 
         // The string used to divide the arguments sent to the remote server
         constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n"sv;
-
-        std::wstring_view ToString(ProcessorEngine value)
-        {
-            switch (value)
-            {
-            case ProcessorEngine::PowerShell:
-                return s_ProcessorEngine_PowerShell;
-            case ProcessorEngine::DSCv3:
-                return s_ProcessorEngine_DSCv3;
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
-        }
 
         // A helper with a convenient function that we use to receive the remote factory object.
         struct RemoteFactoryCallback : winrt::implements<RemoteFactoryCallback, IConfigurationStatics>
@@ -313,12 +300,14 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             bool Insert(winrt::hstring key, winrt::hstring value)
             {
-                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Insert(key, value);
+                auto map = m_remoteFactory.try_as<Collections::IMap<winrt::hstring, winrt::hstring>>();
+                return map ? map.Insert(key, value) : false;
             }
 
             winrt::hstring Lookup(winrt::hstring key)
             {
-                return m_remoteFactory.as<Collections::IMap<winrt::hstring, winrt::hstring>>().Lookup(key);
+                auto map = m_remoteFactory.try_as<Collections::IMap<winrt::hstring, winrt::hstring>>();
+                return map ? map.Lookup(key) : winrt::hstring{};
             }
 
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
@@ -336,8 +325,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
     IConfigurationSetProcessorFactory CreateOutOfProcessFactory(ProcessorEngine processorEngine, bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED, processorEngine == ProcessorEngine::DSCv3 && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigurationDSCv3));
-
         return winrt::make<RemoteFactory>(processorEngine, useRunAs, properties, restrictions);
     }
 
@@ -373,6 +360,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         }
     }
 
+    std::wstring_view ToString(ProcessorEngine value)
+    {
+        switch (value)
+        {
+        case ProcessorEngine::PowerShell:
+            return s_ProcessorEngine_PowerShell;
+        case ProcessorEngine::DSCv3:
+            return s_ProcessorEngine_DSCv3;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     winrt::hstring ToHString(PropertyName name)
     {
         switch (name)
@@ -380,6 +380,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         case PropertyName::DscExecutablePath: return L"DscExecutablePath";
         case PropertyName::FoundDscExecutablePath: return L"FoundDscExecutablePath";
         case PropertyName::DiagnosticTraceEnabled: return L"DiagnosticTraceEnabled";
+        case PropertyName::FindDscStateMachine: return L"FindDscStateMachine";
         }
 
         THROW_HR(E_UNEXPECTED);

@@ -5,6 +5,14 @@
 #include <json/json.h>
 #include <optional>
 
+#ifndef USE_PROD_CLSIDS
+#define WINGET_DSCV3_MODULE_NAME "Microsoft.WinGet.Dev"
+#define WINGET_DSCV3_MODULE_NAME_WIDE L"Microsoft.WinGet.Dev"
+#else
+#define WINGET_DSCV3_MODULE_NAME "Microsoft.WinGet"
+#define WINGET_DSCV3_MODULE_NAME_WIDE L"Microsoft.WinGet"
+#endif
+
 namespace AppInstaller::CLI
 {
     // The kind of resource that this command is implementing.
@@ -75,6 +83,15 @@ namespace AppInstaller::CLI
 
         Utility::LocIndView HelpLink() const override;
 
+        static constexpr std::string_view ModuleName()
+        {
+            return WINGET_DSCV3_MODULE_NAME;
+        }
+
+        // Writes the manifest for the command to the file path.
+        // If the path is empty, writes the manifest to the output stream.
+        void WriteManifest(Execution::Context& context, const std::filesystem::path& filePath) const;
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
 
@@ -94,7 +111,7 @@ namespace AppInstaller::CLI
         virtual void ResourceFunctionManifest(Execution::Context& context) const;
 
         // Parses a JSON object from stdin.
-        std::optional<Json::Value> GetJsonFromInput(Execution::Context& context) const;
+        std::optional<Json::Value> GetJsonFromInput(Execution::Context& context, bool terminateContextOnError = true) const;
 
         // Writes the value to the context output.
         void WriteJsonOutputLine(Execution::Context& context, const Json::Value& value) const;

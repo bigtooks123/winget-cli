@@ -49,6 +49,9 @@ namespace AppInstaller::Filesystem
     // Verifies that the paths are on the same volume.
     bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2);
 
+    // Verifies if 'path' has parent equal to 'parentPath'
+    bool IsParentPath(const std::filesystem::path& path, const std::filesystem::path& parentPath);
+
     // The principal that an ACE applies to.
     enum class ACEPrincipal : uint32_t
     {
@@ -116,4 +119,7 @@ namespace AppInstaller::Filesystem
     // Gets the PathDetails used for the given path.
     // This is exposed primarily to allow for testing, GetPathTo should be preferred.
     PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
+
+    // Gets the path to the executable for the given process.
+    std::filesystem::path GetExecutablePathForProcess(HANDLE process);
 }

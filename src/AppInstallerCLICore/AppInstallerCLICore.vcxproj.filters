@@ -47,9 +47,6 @@
     <ClInclude Include="Workflows\InstallFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\ManifestComparator.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
@@ -284,6 +281,21 @@
     <ClInclude Include="Commands\DscTestJsonResource.h">
       <Filter>Commands\Configuration</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\DscPackageResource.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscSourceResource.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscUserSettingsFileResource.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DscAdminSettingsResource.h">
+      <Filter>Commands\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\McpCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -300,9 +312,6 @@
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\ManifestComparator.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>
@@ -534,6 +543,21 @@
     </ClCompile>
     <ClCompile Include="Commands\DscTestJsonResource.cpp">
       <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscPackageResource.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscSourceResource.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscUserSettingsFileResource.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DscAdminSettingsResource.cpp">
+      <Filter>Commands\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\McpCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

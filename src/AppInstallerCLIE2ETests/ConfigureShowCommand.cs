@@ -22,7 +22,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
             ConfigureCommand.EnsureTestResourcePresence();
         }
@@ -33,7 +32,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             this.DeleteResourceArtifacts();
         }
 
@@ -172,7 +170,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet.Dev/TestFile [Test File]")
                 {
                     startLine = i;
                 }
@@ -202,7 +200,7 @@ namespace AppInstallerCLIE2ETests
             int startLine = -1;
             for (int i = 0; i < outputLines.Length; ++i)
             {
-                if (outputLines[i].Trim() == "Microsoft.WinGet/TestFile [Test File]")
+                if (outputLines[i].Trim() == "Microsoft.WinGet.Dev/TestFile [Test File]")
                 {
                     startLine = i;
                 }

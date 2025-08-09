@@ -47,6 +47,7 @@ awgs
 azurewebsites
 Baz
 bcp
+BEBOM
 BEFACEF
 bfd
 BFirst
@@ -68,6 +69,7 @@ Browsable
 BSODs
 Buf
 buildtransitive
+buildtrees
 cancelledbyuser
 casemap
 casemappings
@@ -113,16 +115,21 @@ dacl
 datetimeoffset
 Dbg
 Dcom
+DCPPREST
 debian
 decompressor
 dedupe
+DEFT
 deigh
 deleteifnotneeded
 deliveryoptimization
 deliveryoptimizationerrors
 DENYWR
 desktopappinstaller
+devblogs
 devhome
+DFX
+DHAVE
 dic
 diskfull
 DISPLAYCATALOG
@@ -136,6 +143,7 @@ dustojnikhummer
 dvinns
 dwgs
 dwrite
+DYAML
 ecfr
 ecfrbrowse
 EFGH
@@ -261,6 +269,7 @@ kool
 ktf
 LCID
 learnxinyminutes
+LEBOM
 lhs
 LIBYAML
 liv
@@ -428,6 +437,7 @@ PWSTR
 QUERYENDSESSION
 qword
 RAII
+ranm
 rebootinitiated
 rebootrequiredforinstall
 rebootrequiredtofinish
@@ -464,6 +474,7 @@ rwgch
 rwgs
 ryfu
 sacl
+sancov
 SARL
 savepoint
 sawgc
@@ -594,7 +605,8 @@ wingetutil
 winreg
 winrtact
 winstring
-Wnd
+WMI
+wnd
 WNDCLASS
 WNDCLASSEX
 workaround
@@ -610,6 +622,7 @@ wto
 wwinmain
 WZDNCRFJ
 xcopy
+Xes
 XFile
 XManifest
 XMUGIWARAMODULE

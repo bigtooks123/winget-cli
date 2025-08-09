@@ -8,9 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Linq;
     using AppInstallerCLIE2ETests.Helpers;
-    using Microsoft.Win32;
     using NUnit.Framework;
 
     /// <summary>
@@ -25,14 +23,7 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static void EnsureTestResourcePresence()
         {
-            string outputDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft\\WindowsApps");
-            Assert.IsNotEmpty(outputDirectory);
-
-            var result = TestCommon.RunAICLICommand("dscv3 test-file", $"--manifest -o {outputDirectory}\\test-file.dsc.resource.json");
-            Assert.AreEqual(0, result.ExitCode);
-
-            result = TestCommon.RunAICLICommand("dscv3 test-json", $"--manifest -o {outputDirectory}\\test-json.dsc.resource.json");
-            Assert.AreEqual(0, result.ExitCode);
+            DSCv3ResourceTestBase.EnsureTestResourcePresence();
         }
 
         /// <summary>
@@ -41,9 +32,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", true);
             this.DeleteResourceArtifacts();
             EnsureTestResourcePresence();
+            TestCommon.SetupTestSource(false);
         }
 
         /// <summary>
@@ -52,8 +43,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void OneTimeTeardown()
         {
-            WinGetSettingsHelper.ConfigureFeature("dsc3", false);
             this.DeleteResourceArtifacts();
+            TestCommon.TearDownTestSource();
         }
 
         /// <summary>
@@ -336,12 +327,12 @@ namespace AppInstallerCLIE2ETests
             var exportDir = TestCommon.GetRandomTestDir();
             var exportFile = Path.Combine(exportDir, "exported.yml");
 
-            result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet/TestJSON --verbose");
+            result = TestCommon.RunAICLICommand("test config-export-units", $"-o {exportFile} --resource Microsoft.WinGet.Dev/TestJSON --verbose");
             Assert.AreEqual(0, result.ExitCode);
 
             Assert.True(File.Exists(exportFile));
             string exportText = File.ReadAllText(exportFile);
-            Assert.True(exportText.Contains("Microsoft.WinGet/TestJSON"));
+            Assert.True(exportText.Contains("Microsoft.WinGet.Dev/TestJSON"));
             Assert.True(exportText.Contains(propertyName1));
             Assert.True(exportText.Contains(propertyName2));
             Assert.True(exportText.Contains(propertyValue1));
@@ -364,6 +355,63 @@ namespace AppInstallerCLIE2ETests
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
             FileAssert.Exists(targetFilePath);
             Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
+        }
+
+        /// <summary>
+        /// Find unit processors tests.
+        /// </summary>
+        [Test]
+        public void ConfigureFindUnitProcessors()
+        {
+            // Find all unit processors.
+            var result = TestCommon.RunAICLICommand("test config-find-unit-processors", string.Empty);
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Microsoft/OSInfo"));
+
+            // Setup TestExeInstaller with dsc resources.
+            var installDir = TestCommon.GetRandomTestDir();
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /GenerateDscResourceFiles\"");
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Find unit processors filtering to install location.
+            result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {installDir}");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.False(result.StdOut.Contains("Microsoft/OSInfo"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest/TestResource"));
+
+            // Find unit processors filtering to unknown location.
+            var unknownDir = TestCommon.GetRandomTestDir();
+            result = TestCommon.RunAICLICommand("test config-find-unit-processors", $"-l {unknownDir}");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No unit processors found."));
+
+            // Clean up
+            result = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
+        /// <summary>
+        /// RunCommandOnSet test.
+        /// </summary>
+        [Test]
+        public void RunCommandOnSetResourceTest()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var testConfigFile = Path.Combine(testDir, "RunCommandOnSet.yml");
+            File.Copy(TestCommon.GetTestDataFile("Configuration\\RunCommandOnSet.yml"), testConfigFile);
+
+            var content = File.ReadAllText(testConfigFile);
+            content = content.Replace("<PathToBeReplaced>", testDir);
+            File.WriteAllText(testConfigFile, content);
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, testConfigFile, timeOut: 300000);
+            Assert.AreEqual(0, result.ExitCode);
+
+            // Verify test file created.
+            string targetFilePath = Path.Combine(testDir, "TestFile.txt");
+            FileAssert.Exists(targetFilePath);
+            string testContent = File.ReadAllText(targetFilePath);
+            Assert.True(testContent.Contains("TestContent"));
         }
 
         private void DeleteResourceArtifacts()

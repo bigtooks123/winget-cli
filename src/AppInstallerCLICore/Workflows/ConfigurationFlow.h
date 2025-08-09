@@ -29,12 +29,14 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ConfigurationSet
     struct CreateOrOpenConfigurationSet : public WorkflowTask
     {
-        CreateOrOpenConfigurationSet(std::string defaultSchemaVersion = "0.2") : WorkflowTask("CreateOrOpenConfigurationSet"), m_defaultSchemaVersion(std::move(defaultSchemaVersion)) {}
+        CreateOrOpenConfigurationSet(std::string defaultSchemaVersion, bool createAlways = false) :
+            WorkflowTask("CreateOrOpenConfigurationSet"), m_defaultSchemaVersion(std::move(defaultSchemaVersion)), m_createAlways(createAlways) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         std::string m_defaultSchemaVersion;
+        bool m_createAlways = false;
     };
 
     // Outputs the configuration set.
@@ -74,12 +76,6 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
     void TestConfigurationSet(Execution::Context& context);
-
-    // Verifies the full package is installed.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    void VerifyIsFullPackage(Execution::Context& context);
 
     // Validates the configuration set semantically.
     // Required Args: None

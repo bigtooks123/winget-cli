@@ -769,7 +769,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         return *result;
     }
-    
+
     Configuration::GetAllConfigurationUnitSettingsResult ConfigurationProcessor::GetAllUnitSettings(const ConfigurationUnit& unit)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
@@ -953,6 +953,178 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             AICLI_LOG(Config, Error, << "Unit Processor does not support GetAllUnits or GetAllSettings operation");
             unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{});
+        }
+
+        return *result;
+    }
+
+    Windows::Foundation::Collections::IVector<IConfigurationUnitProcessorDetails> ConfigurationProcessor::FindUnitProcessors(const FindUnitProcessorsOptions& findOptions)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return FindUnitProcessorsImpl(findOptions);
+    }
+
+    Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<IConfigurationUnitProcessorDetails>> ConfigurationProcessor::FindUnitProcessorsAsync(const FindUnitProcessorsOptions& findOptions)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        FindUnitProcessorsOptions localOptions = findOptions;
+
+        co_await winrt::resume_background();
+
+        co_return FindUnitProcessorsImpl(localOptions, { co_await winrt::get_cancellation_token() });
+    }
+
+    Windows::Foundation::Collections::IVector<IConfigurationUnitProcessorDetails> ConfigurationProcessor::FindUnitProcessorsImpl(
+        const FindUnitProcessorsOptions& findOptions,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+
+        cancellation.ThrowIfCancelled();
+
+        IFindUnitProcessorsSetProcessor findUnitProcessorsSetProcessor;
+
+        if (setProcessor.try_as<IFindUnitProcessorsSetProcessor>(findUnitProcessorsSetProcessor))
+        {
+            return findUnitProcessorsSetProcessor.FindUnitProcessors(findOptions);
+        }
+        else
+        {
+            AICLI_LOG(Config, Error, << "Set Processor does not support FindUnitProcessors operation");
+            THROW_HR(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR);
+        }
+    }
+
+    Configuration::ApplyConfigurationUnitResult ConfigurationProcessor::ApplyUnit(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return ApplyUnitImpl(unit);
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::ApplyConfigurationUnitResult> ConfigurationProcessor::ApplyUnitAsync(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        ConfigurationUnit localUnit = unit;
+
+        co_await winrt::resume_background();
+
+        co_return ApplyUnitImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::ApplyConfigurationUnitResult ConfigurationProcessor::ApplyUnitImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->Unit(unit);
+        result->ResultInformation(*unitResult);
+
+        cancellation.ThrowIfCancelled();
+
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        if (unitProcessor)
+        {
+            try
+            {
+                auto applyResult = unitProcessor.ApplySettings();
+                result->Unit(applyResult.Unit());
+                result->State(Configuration::ConfigurationUnitState::Completed);
+                result->ResultInformation(applyResult.ResultInformation());
+                result->RebootRequired(applyResult.RebootRequired());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Apply, TelemetryTraceLogger::ApplyAction, result->ResultInformation());
+        }
+
+        return *result;
+    }
+
+    Configuration::TestConfigurationUnitResult ConfigurationProcessor::TestUnit(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return TestUnitImpl(unit);
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::TestConfigurationUnitResult> ConfigurationProcessor::TestUnitAsync(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        ConfigurationUnit localUnit = unit;
+
+        co_await winrt::resume_background();
+
+        co_return TestUnitImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::TestConfigurationUnitResult ConfigurationProcessor::TestUnitImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->Unit(unit);
+        result->ResultInformation(*unitResult);
+
+        cancellation.ThrowIfCancelled();
+
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        if (unitProcessor)
+        {
+            try
+            {
+                auto testResult = unitProcessor.TestSettings();
+                result->Unit(testResult.Unit());
+                result->TestResult(testResult.TestResult());
+                result->ResultInformation(testResult.ResultInformation());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Assert, TelemetryTraceLogger::TestAction, result->ResultInformation());
         }
 
         return *result;

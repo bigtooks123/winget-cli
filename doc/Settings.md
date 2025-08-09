@@ -355,24 +355,12 @@ You can enable the feature as shown below.
    },
 ```
 
-### dsc3
+### fonts
 
-This feature enables support for DSC v3 integration.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "dsc3": true
-   },
-```
-
-### configureExport
-
-This feature enables exporting a configuration file.
-You can enable the feature as shown below.
+This feature enables support for fonts via `winget settings`. The `winget font list` command will list installed font families and the number of installed font faces.
 
 ```json
-   "experimentalFeatures": {
-       "configureExport": true
-   },
+  "experimentalFeatures": {
+        "fonts": true
+  },
 ```

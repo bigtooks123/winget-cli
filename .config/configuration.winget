@@ -2,18 +2,18 @@
 # Reference: https://github.com/microsoft/winget-cli#building-the-client
 properties:
   resources:
-    - resource: Microsoft.Windows.Developer/DeveloperMode
+    - resource: Microsoft.Windows.Settings/WindowsSettings
       directives:
         description: Enable Developer Mode
         # Requires elevation for the set operation
         securityContext: elevated
         allowPrerelease: true
       settings:
-        Ensure: Present
+        DeveloperMode: true
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: vsPackage
       directives:
-        description: Install Visual Studio 2022 (any edition is OK)
+        description: Install Visual Studio 2022 Community
         # Requires elevation for the set operation
         securityContext: elevated
       settings:

@@ -1975,30 +1975,31 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallFullPackageDescription" xml:space="preserve">
     <value>Install the full package for AppInstaller</value>
   </data>
-  <data name="ConfigurationEnableMessage" xml:space="preserve">
-    <value>Enable configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesEnableMessage" xml:space="preserve">
+    <value>Enable extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+  <data name="ExtendedFeaturesEnableArgumentError" xml:space="preserve">
     <value>Option '--enable' and '--disable' cannot be used with other arguments.</value>
     <comment>{Locked="--enable", "--disable"}</comment>
   </data>
-  <data name="ConfigurationEnablingMessage" xml:space="preserve">
-    <value>Enabling configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesEnablingMessage" xml:space="preserve">
+    <value>Enabling extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
-    <value>Configuration is not enabled. Run `winget configure --enable` to enable it.</value>
+  <data name="ExtendedFeaturesNotEnabledMessage" xml:space="preserve">
+    <value>Extended features are not enabled. Run `winget configure --enable` to enable them.</value>
+    <comment>{Locked="winget configure --enable"}</comment>
   </data>
-  <data name="ConfigurationEnabledMessage" xml:space="preserve">
-    <value>Configuration is enabled.</value>
+  <data name="ExtendedFeaturesEnabledMessage" xml:space="preserve">
+    <value>Extended features are enabled.</value>
   </data>
-  <data name="ConfigurationDisableMessage" xml:space="preserve">
-    <value>Disable configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesDisableMessage" xml:space="preserve">
+    <value>Disable extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationDisablingMessage" xml:space="preserve">
-    <value>Disabling configuration components. Requires store access.</value>
+  <data name="ExtendedFeaturesDisablingMessage" xml:space="preserve">
+    <value>Disabling extended features. Requires store access.</value>
   </data>
-  <data name="ConfigurationDisabledMessage" xml:space="preserve">
-    <value>Configuration is disabled.</value>
+  <data name="ExtendedFeaturesDisabledMessage" xml:space="preserve">
+    <value>Extended features are disabled.</value>
   </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Skips processing package dependencies and Windows features</value>
@@ -3246,5 +3247,144 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="DscResourceFunctionDescriptionManifest" xml:space="preserve">
     <value>Get the resource manifest</value>
+  </data>
+  <data name="DscPackageResourceShortDescription" xml:space="preserve">
+    <value>Manage package state</value>
+  </data>
+  <data name="DscPackageResourceLongDescription" xml:space="preserve">
+    <value>Manage packages through winget.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionExist" xml:space="preserve">
+    <value>Indicates whether an instance should or does exist.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionInDesiredState" xml:space="preserve">
+    <value>Indicates whether an instance is in the desired state.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageId" xml:space="preserve">
+    <value>The identifier of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageSource" xml:space="preserve">
+    <value>The source of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageVersion" xml:space="preserve">
+    <value>The version of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageMatchOption" xml:space="preserve">
+    <value>The method for matching the identifier with a package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageUseLatest" xml:space="preserve">
+    <value>Indicate that the latest available version of the package should be installed.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageInstallMode" xml:space="preserve">
+    <value>The install mode to use if needed.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionPackageScope" xml:space="preserve">
+    <value>The target scope of the package.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionAcceptAgreements" xml:space="preserve">
+    <value>Indicates whether to accept agreements for sources and packages.</value>
+  </data>
+  <data name="DscUserSettingsFileShortDescription" xml:space="preserve">
+    <value>Manage user settings file</value>
+  </data>
+  <data name="DscUserSettingsFileLongDescription" xml:space="preserve">
+    <value>Manage the user settings of winget.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileSettings" xml:space="preserve">
+    <value>The settings json file content.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionUserSettingsFileAction" xml:space="preserve">
+    <value>The action used to apply the settings.</value>
+  </data>
+  <data name="CorrelationArgumentDescription" xml:space="preserve">
+    <value>Value is logged for correlation</value>
+  </data>
+  <data name="DscSourceResourceShortDescription" xml:space="preserve">
+    <value>Manage source configuration</value>
+  </data>
+  <data name="DscSourceResourceLongDescription" xml:space="preserve">
+    <value>Manage the sources of winget.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceName" xml:space="preserve">
+    <value>The name to use for the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceArgument" xml:space="preserve">
+    <value>The argument for the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceType" xml:space="preserve">
+    <value>The type of the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceTrustLevel" xml:space="preserve">
+    <value>The trust level of the source.</value>
+  </data>
+  <data name="DscResourcePropertyDescriptionSourceExplicit" xml:space="preserve">
+    <value>Whether the source is included when calls don't specify a source.</value>
+  </data>
+  <data name="ConfigurationApplyingUnit" xml:space="preserve">
+    <value>Applying configuration unit...</value>
+  </data>
+  <data name="ConfigurationExportingUnit" xml:space="preserve">
+    <value>Exporting configuration unit...</value>
+  </data>
+  <data name="ConfigurationGettingUnitProcessors" xml:space="preserve">
+    <value>Getting configuration unit processors...</value>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModule" xml:space="preserve">
+    <value>Ensure required module for export [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportInstallRequiredModuleFailed" xml:space="preserve">
+    <value>Failed to test or acquire required module. Related settings will not be exported.</value>
+  </data>
+  <data name="ConfigurationExportUnitStart" xml:space="preserve">
+    <value>Export [{0}]</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportUnitFailed" xml:space="preserve">
+    <value>Failed to export the resource.</value>
+  </data>
+  <data name="ConfigurationExportFailedToGetUnitProcessors" xml:space="preserve">
+    <value>Failed to get unit processors. Individual package settings will not be exported.</value>
+  </data>
+  <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
+    <value>Directory where the results are to be written</value>
+  </data>
+  <data name="ConfigurationInstallDscPackage" xml:space="preserve">
+    <value>Desired State Configuration package not found on the system. Installing the package...</value>
+  </data>
+  <data name="ConfigurationInstallDscPackageFailed" xml:space="preserve">
+    <value>Failed to install Desired State Configuration package. Install the package manually or provide the path to dsc.exe through --processor-path argument.</value>
+    <comment>{Locked="dsc.exe","--processor-path"}</comment>
+  </data>
+  <data name="DscResourcePropertyDescriptionAdminSettingsSettings" xml:space="preserve">
+    <value>An object containing the administrator settings and their values.</value>
+  </data>
+  <data name="DscAdminSettingsResourceShortDescription" xml:space="preserve">
+    <value>Manage administrator settings</value>
+  </data>
+  <data name="DscAdminSettingsResourceLongDescription" xml:space="preserve">
+    <value>Manage the administrator settings of winget.</value>
+  </data>
+  <data name="ResetAllAdminSettingsArgumentDescription" xml:space="preserve">
+    <value>Resets all admin settings</value>
+  </data>
+  <data name="ResetAllAdminSettingsSucceeded" xml:space="preserve">
+    <value>All admin settings reset.</value>
+  </data>
+  <data name="McpCommandShortDescription" xml:space="preserve">
+    <value>MCP information</value>
+    <comment>MCP stands for Model Context Protocol and should probably remain as-is</comment>
+  </data>
+  <data name="McpCommandLongDescription" xml:space="preserve">
+    <value>MCP (Model Context Protocol) information for the Windows Package Manager.</value>
+  </data>
+  <data name="McpConfigurationPreamble" xml:space="preserve">
+    <value>To manually configure the Windows Package Manager MCP server with your MCP client, use the following JSON fragment in the `servers` object:</value>
+    <comment>{Locked="`servers`"}
+MCP stands for Model Context Protocol and should probably remain as-is.
+An unlocalized JSON fragment will follow on another line.</comment>
+  </data>
+  <data name="PolicyEnableMcpServer" xml:space="preserve">
+    <value>Enable Windows Package Manager MCP Server</value>
   </data>
 </root>

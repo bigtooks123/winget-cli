@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
+using Microsoft.Management.Configuration.Processor.Helpers;
 using WinRT;
 using IConfigurationSetProcessorFactory = global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory;
 
@@ -79,6 +80,10 @@ namespace ConfigurationRemotingServer
 
             string staticsCallback = args[1];
 
+            // Listen for setting change message and update PATH if needed.
+            EnvironmentChangeListener.EnvironmentChanged += OnEnvironmentChanged;
+            EnvironmentChangeListener environmentChangeListener = new EnvironmentChangeListener();
+
             try
             {
                 string completionEventName = args[2];
@@ -147,11 +152,20 @@ namespace ConfigurationRemotingServer
 
                 return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, staticsCallback, completionEventName, parentProcessId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, staticsCallback, null, 0);
                 return ex.HResult;
             }
+            finally
+            {
+                environmentChangeListener.Stop();
+            }
+        }
+
+        private static void OnEnvironmentChanged()
+        {
+            PathEnvironmentVariableHandler.UpdatePath();
         }
 
         private class LimitationSetMetadata
